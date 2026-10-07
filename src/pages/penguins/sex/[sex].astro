@@ -1,0 +1,47 @@
+---
+export const prerender = false;
+
+import * as Plot from "@observablehq/plot";
+import Layout from "../../../layouts/Layout.astro";
+import PlotFigure from "../../../components/PlotFigure.astro";
+import penguins from "../../../assets/penguins.json";
+
+const { sex } = Astro.params;
+const filteredPenguins = penguins.filter((penguin) => penguin.sex === sex);
+const sexExists = filteredPenguins.length > 0;
+
+if (!sexExists) {
+  Astro.response.status = 404;
+}
+---
+
+<Layout>
+  <main class="p-8">
+    {
+      sexExists ? (
+        <>
+          <h1 class="text-3xl font-bold mb-8">Pingouins : {sex}</h1>
+          <PlotFigure
+            options={{
+              marks: [
+                Plot.dot(filteredPenguins, {
+                  x: "culmen_length_mm",
+                  y: "culmen_depth_mm",
+                  stroke: "species",
+                }),
+              ],
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <h1 class="text-3xl font-bold mb-4">Valeur de sexe inconnue</h1>
+          <p>
+            La valeur "{sex ?? ""}" n'existe pas dans les données des pingouins.
+          </p>
+          <a href="/penguins/sex/">Retourner à la liste des sexes</a>
+        </>
+      )
+    }
+  </main>
+</Layout>

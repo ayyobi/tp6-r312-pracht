@@ -1,0 +1,26 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import penguins from "../../../assets/penguins.json";
+
+const sexList = penguins.map((penguin) => penguin.sex);
+const sexes = [...new Set(sexList.filter((sex) => sex != null && sex !== ""))];
+---
+
+<Layout>
+  <main class="p-8">
+    <h1 class="text-3xl font-bold mb-8">Pingouins par sexe</h1>
+
+    <nav aria-label="Pages des sexes" class="mb-8">
+      <h2 class="text-xl font-bold mb-4">Pages par sexe</h2>
+      <ul class="flex flex-wrap gap-4">
+        {
+          sexes.map((sex) => (
+            <li>
+              <a href={`/penguins/sex/${encodeURIComponent(sex)}`}>{sex}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </main>
+</Layout>
