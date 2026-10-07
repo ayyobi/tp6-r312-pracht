@@ -21,7 +21,9 @@ const species = [...new Set(speciesList)];
         {
           species.map((specie) => (
             <li>
-              <a href={`/penguins/${encodeURIComponent(specie)}`}>{specie}</a>
+              <a href={`/penguins/specie/${encodeURIComponent(specie)}`}>
+                {specie}
+              </a>
             </li>
           ))
         }

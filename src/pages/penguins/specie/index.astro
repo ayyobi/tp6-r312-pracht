@@ -1,0 +1,28 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import penguins from "../../../assets/penguins.json";
+
+const speciesList = penguins.map((penguin) => penguin.species);
+const species = [...new Set(speciesList)];
+---
+
+<Layout>
+  <main class="p-8">
+    <h1 class="text-3xl font-bold mb-8">Pingouins par espèce</h1>
+
+    <nav aria-label="Pages des espèces de pingouins" class="mb-8">
+      <h2 class="text-xl font-bold mb-4">Pages par espèce</h2>
+      <ul class="flex flex-wrap gap-4">
+        {
+          species.map((specie) => (
+            <li>
+              <a href={`/penguins/specie/${encodeURIComponent(specie)}`}>
+                {specie}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </main>
+</Layout>
