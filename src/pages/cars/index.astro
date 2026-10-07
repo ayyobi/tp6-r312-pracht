@@ -12,6 +12,19 @@ const years = [...new Set(yearList)];
   <main class="p-8">
     <h1 class="text-3xl font-bold mb-8">Voitures par année</h1>
 
+    <nav aria-label="Pages des années de voitures" class="mb-8">
+      <h2 class="text-xl font-bold mb-4">Pages par année</h2>
+      <ul class="flex flex-wrap gap-4">
+        {
+          years.map((year) => (
+            <li>
+              <a href={`/cars/${year.slice(0, 4)}`}>{year.slice(0, 4)}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
     <div class="year-tabs" role="tablist" aria-label="Années des voitures" data-year-tabs>
       {
         years.map((year, index) => (
