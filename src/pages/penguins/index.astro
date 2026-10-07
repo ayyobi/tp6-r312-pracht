@@ -15,15 +15,45 @@ const species = [...new Set(speciesList)];
   <main class="p-8">
     <h1 class="text-3xl font-bold mb-8">Tous les pingouins</h1>
 
+    <div
+      class="species-tabs"
+      role="tablist"
+      aria-label="Espèces de pingouins"
+      data-species-tabs
+    >
+      {
+        species.map((specie, index) => (
+          <button
+            class="species-tab"
+            id={`species-tab-${index}`}
+            type="button"
+            role="tab"
+            aria-selected={index === 0 ? "true" : "false"}
+            aria-controls={`species-panel-${index}`}
+            tabindex={index === 0 ? 0 : -1}
+          >
+            {specie}
+          </button>
+        ))
+      }
+    </div>
+
     {
-      species.map((specie) => {
+      species.map((specie, index) => {
         // Garde seulement les pingouins de cette espèce
         const filteredPenguins = penguins.filter(
           (penguin) => penguin.species === specie,
         );
 
         return (
-          <section class="mb-12">
+          <section
+            class="species-panel"
+            id={`species-panel-${index}`}
+            role="tabpanel"
+            aria-labelledby={`species-tab-${index}`}
+            tabindex="0"
+            hidden={index !== 0}
+          >
             <h2 class="text-2xl font-bold mb-4">{specie}</h2>
 
             <PlotFigure
@@ -43,3 +73,88 @@ const species = [...new Set(speciesList)];
     }
   </main>
 </Layout>
+
+<script>
+  const tabLists = document.querySelectorAll<HTMLElement>("[data-species-tabs]");
+
+  for (const tabList of tabLists) {
+    const tabs = Array.from(
+      tabList.querySelectorAll<HTMLButtonElement>('[role="tab"]'),
+    );
+
+    function activateTab(tab: HTMLButtonElement, moveFocus = false) {
+      for (const currentTab of tabs) {
+        const selected = currentTab === tab;
+        currentTab.setAttribute("aria-selected", String(selected));
+        currentTab.tabIndex = selected ? 0 : -1;
+
+        const panelId = currentTab.getAttribute("aria-controls");
+        const panel = panelId ? document.getElementById(panelId) : null;
+        if (panel) panel.hidden = !selected;
+      }
+
+      if (moveFocus) tab.focus();
+    }
+
+    tabList.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement) || !tabList.contains(target)) {
+        return;
+      }
+
+      activateTab(target);
+    });
+
+    tabList.addEventListener("keydown", (event) => {
+      const currentIndex = tabs.findIndex((tab) => tab === document.activeElement);
+      if (currentIndex < 0) return;
+
+      let nextIndex: number;
+      switch (event.key) {
+        case "ArrowRight":
+          nextIndex = (currentIndex + 1) % tabs.length;
+          break;
+        case "ArrowLeft":
+          nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+          break;
+        case "Home":
+          nextIndex = 0;
+          break;
+        case "End":
+          nextIndex = tabs.length - 1;
+          break;
+        default:
+          return;
+      }
+
+      event.preventDefault();
+      activateTab(tabs[nextIndex], true);
+    });
+  }
+</script>
+
+<style>
+  .species-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .species-tab {
+    border: 1px solid currentColor;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .species-tab[aria-selected="true"] {
+    background: #1d4ed8;
+    color: white;
+  }
+
+  .species-tab:focus-visible,
+  .species-panel:focus-visible {
+    outline: 3px solid #f59e0b;
+    outline-offset: 3px;
+  }
+</style>
