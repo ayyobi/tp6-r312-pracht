@@ -1,11 +1,50 @@
 ---
 export const prerender = false;
+
+import * as Plot from "@observablehq/plot";
 import Layout from "../../layouts/Layout.astro";
+import PlotFigure from "../../components/PlotFigure.astro";
+import penguins from "../../assets/penguins.json";
+
+const { species } = Astro.params;
+const filteredPenguins = penguins.filter(
+  (penguin) => penguin.species === species,
+);
+const speciesExists = filteredPenguins.length > 0;
+
+if (!speciesExists) {
+  Astro.response.status = 404;
+}
 ---
 
 <Layout>
   <main class="p-8">
-    <h1 class="text-3xl font-bold">Route dynamique des manchots</h1>
-    <p>Cette page est prête à recevoir le nom d'une espèce.</p>
+    {
+      speciesExists ? (
+        <>
+          <h1 class="text-3xl font-bold mb-8">{species}</h1>
+          <PlotFigure
+            options={{
+              marks: [
+                Plot.dot(filteredPenguins, {
+                  x: "culmen_length_mm",
+                  y: "culmen_depth_mm",
+                  stroke: "species",
+                }),
+              ],
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <h1 class="text-3xl font-bold mb-4">Espèce inconnue</h1>
+          <p>
+            L'espèce "{species ?? ""}" n'existe pas dans les données des
+            pingouins.
+          </p>
+          <a href="/penguins/">Retourner à la liste des espèces</a>
+        </>
+      )
+    }
   </main>
 </Layout>
