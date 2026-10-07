@@ -1,10 +1,17 @@
 ---
-export const prerender = false;
-
 import * as Plot from "@observablehq/plot";
 import Layout from "../../../layouts/Layout.astro";
 import PlotFigure from "../../../components/PlotFigure.astro";
 import penguins from "../../../assets/penguins.json";
+
+export function getStaticPaths() {
+  const islandList = penguins.map((penguin) => penguin.island);
+  const islands = [...new Set(islandList)];
+
+  return islands.map((island) => ({
+    params: { island },
+  }));
+}
 
 const { island } = Astro.params;
 const filteredPenguins = penguins.filter(
