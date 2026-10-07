@@ -1,0 +1,148 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PlotFigure from "../../components/PlotFigure.astro";
+import * as Plot from "@observablehq/plot";
+import cars from "../../assets/cars.json";
+
+const yearList = cars.map((car) => car.Year);
+const years = [...new Set(yearList)];
+---
+
+<Layout>
+  <main class="p-8">
+    <h1 class="text-3xl font-bold mb-8">Voitures par année</h1>
+
+    <div class="year-tabs" role="tablist" aria-label="Années des voitures" data-year-tabs>
+      {
+        years.map((year, index) => (
+          <button
+            class="year-tab"
+            id={`year-tab-${index}`}
+            type="button"
+            role="tab"
+            aria-selected={index === 0 ? "true" : "false"}
+            aria-controls={`year-panel-${index}`}
+            tabindex={index === 0 ? 0 : -1}
+          >
+            {year.slice(0, 4)}
+          </button>
+        ))
+      }
+    </div>
+
+    {
+      years.map((year, index) => {
+        const filteredCars = cars.filter((car) => car.Year === year);
+
+        return (
+          <section
+            class="year-panel"
+            id={`year-panel-${index}`}
+            role="tabpanel"
+            aria-labelledby={`year-tab-${index}`}
+            tabindex="0"
+            hidden={index !== 0}
+          >
+            <h2 class="text-2xl font-bold mb-4">{year.slice(0, 4)}</h2>
+            <PlotFigure
+              options={{
+                marks: [
+                  Plot.dot(filteredCars, {
+                    x: "Weight_in_lbs",
+                    y: "Miles_per_Gallon",
+                    stroke: "Origin",
+                  }),
+                ],
+              }}
+            />
+          </section>
+        );
+      })
+    }
+  </main>
+</Layout>
+
+<script>
+  const tabLists = document.querySelectorAll<HTMLElement>("[data-year-tabs]");
+
+  for (const tabList of tabLists) {
+    const tabs = Array.from(
+      tabList.querySelectorAll<HTMLButtonElement>('[role="tab"]'),
+    );
+
+    function activateTab(tab: HTMLButtonElement, moveFocus = false) {
+      for (const currentTab of tabs) {
+        const selected = currentTab === tab;
+        currentTab.setAttribute("aria-selected", String(selected));
+        currentTab.tabIndex = selected ? 0 : -1;
+
+        const panelId = currentTab.getAttribute("aria-controls");
+        const panel = panelId ? document.getElementById(panelId) : null;
+        if (panel) panel.hidden = !selected;
+      }
+
+      if (moveFocus) tab.focus();
+    }
+
+    tabList.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLButtonElement) || !tabList.contains(target)) {
+        return;
+      }
+
+      activateTab(target);
+    });
+
+    tabList.addEventListener("keydown", (event) => {
+      const currentIndex = tabs.findIndex((tab) => tab === document.activeElement);
+      if (currentIndex < 0) return;
+
+      let nextIndex: number;
+      switch (event.key) {
+        case "ArrowRight":
+          nextIndex = (currentIndex + 1) % tabs.length;
+          break;
+        case "ArrowLeft":
+          nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+          break;
+        case "Home":
+          nextIndex = 0;
+          break;
+        case "End":
+          nextIndex = tabs.length - 1;
+          break;
+        default:
+          return;
+      }
+
+      event.preventDefault();
+      activateTab(tabs[nextIndex], true);
+    });
+  }
+</script>
+
+<style>
+  .year-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .year-tab {
+    border: 1px solid currentColor;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .year-tab[aria-selected="true"] {
+    background: #1d4ed8;
+    color: white;
+  }
+
+  .year-tab:focus-visible,
+  .year-panel:focus-visible {
+    outline: 3px solid #f59e0b;
+    outline-offset: 3px;
+  }
+</style>
