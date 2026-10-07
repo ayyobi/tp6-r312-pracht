@@ -1,0 +1,49 @@
+---
+export const prerender = false;
+
+import * as Plot from "@observablehq/plot";
+import Layout from "../../../layouts/Layout.astro";
+import PlotFigure from "../../../components/PlotFigure.astro";
+import penguins from "../../../assets/penguins.json";
+
+const { island } = Astro.params;
+const filteredPenguins = penguins.filter(
+  (penguin) => penguin.island === island,
+);
+const islandExists = filteredPenguins.length > 0;
+
+if (!islandExists) {
+  Astro.response.status = 404;
+}
+---
+
+<Layout>
+  <main class="p-8">
+    {
+      islandExists ? (
+        <>
+          <h1 class="text-3xl font-bold mb-8">Île de {island}</h1>
+          <PlotFigure
+            options={{
+              marks: [
+                Plot.dot(filteredPenguins, {
+                  x: "culmen_length_mm",
+                  y: "culmen_depth_mm",
+                  stroke: "species",
+                }),
+              ],
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <h1 class="text-3xl font-bold mb-4">Île inconnue</h1>
+          <p>
+            L'île "{island ?? ""}" n'existe pas dans les données des pingouins.
+          </p>
+          <a href="/penguins/island/">Retourner à la liste des îles</a>
+        </>
+      )
+    }
+  </main>
+</Layout>

@@ -1,0 +1,28 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import penguins from "../../../assets/penguins.json";
+
+const islandList = penguins.map((penguin) => penguin.island);
+const islands = [...new Set(islandList)];
+---
+
+<Layout>
+  <main class="p-8">
+    <h1 class="text-3xl font-bold mb-8">Pingouins par île</h1>
+
+    <nav aria-label="Pages des îles" class="mb-8">
+      <h2 class="text-xl font-bold mb-4">Pages par île</h2>
+      <ul class="flex flex-wrap gap-4">
+        {
+          islands.map((island) => (
+            <li>
+              <a href={`/penguins/island/${encodeURIComponent(island)}`}>
+                {island}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </main>
+</Layout>
