@@ -1,10 +1,19 @@
 ---
-export const prerender = false;
-
 import * as Plot from "@observablehq/plot";
 import Layout from "../../../layouts/Layout.astro";
 import PlotFigure from "../../../components/PlotFigure.astro";
 import penguins from "../../../assets/penguins.json";
+
+export function getStaticPaths() {
+  const sexList = penguins.map((penguin) => penguin.sex);
+  const sexes = [
+    ...new Set(sexList.filter((sex) => sex != null && sex !== "")),
+  ];
+
+  return sexes.map((sex) => ({
+    params: { sex },
+  }));
+}
 
 const { sex } = Astro.params;
 const filteredPenguins = penguins.filter((penguin) => penguin.sex === sex);
