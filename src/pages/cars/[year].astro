@@ -1,11 +1,47 @@
 ---
 export const prerender = false;
+
+import * as Plot from "@observablehq/plot";
 import Layout from "../../layouts/Layout.astro";
+import PlotFigure from "../../components/PlotFigure.astro";
+import cars from "../../assets/cars.json";
+
+const { year } = Astro.params;
+const filteredCars = cars.filter((car) => car.Year.slice(0, 4) === year);
+const yearExists = filteredCars.length > 0;
+
+if (!yearExists) {
+  Astro.response.status = 404;
+}
 ---
 
 <Layout>
   <main class="p-8">
-    <h1 class="text-3xl font-bold">Route dynamique des voitures</h1>
-    <p>Cette page est prête à recevoir une année.</p>
+    {
+      yearExists ? (
+        <>
+          <h1 class="text-3xl font-bold mb-8">Voitures de {year}</h1>
+          <PlotFigure
+            options={{
+              marks: [
+                Plot.dot(filteredCars, {
+                  x: "Weight_in_lbs",
+                  y: "Miles_per_Gallon",
+                  stroke: "Origin",
+                }),
+              ],
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <h1 class="text-3xl font-bold mb-4">Année inconnue</h1>
+          <p>
+            Aucune voiture de l'année "{year ?? ""}" n'existe dans les données.
+          </p>
+          <a href="/cars/">Retourner à la liste des années</a>
+        </>
+      )
+    }
   </main>
 </Layout>
