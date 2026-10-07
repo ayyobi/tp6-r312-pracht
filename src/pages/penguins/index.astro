@@ -15,6 +15,19 @@ const species = [...new Set(speciesList)];
   <main class="p-8">
     <h1 class="text-3xl font-bold mb-8">Tous les pingouins</h1>
 
+    <nav aria-label="Pages des espèces de pingouins" class="mb-8">
+      <h2 class="text-xl font-bold mb-4">Pages par espèce</h2>
+      <ul class="flex flex-wrap gap-4">
+        {
+          species.map((specie) => (
+            <li>
+              <a href={`/penguins/${encodeURIComponent(specie)}`}>{specie}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
     <div
       class="species-tabs"
       role="tablist"
