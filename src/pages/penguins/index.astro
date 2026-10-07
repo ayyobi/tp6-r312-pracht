@@ -1,0 +1,45 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PlotFigure from "../../components/PlotFigure.astro";
+import * as Plot from "@observablehq/plot";
+import penguins from "../../assets/penguins.json";
+
+// 1. On récupère les espèces de tous les pingouins
+const speciesList = penguins.map((penguin) => penguin.species);
+
+// 2. On supprime les doublons
+const species = [...new Set(speciesList)];
+---
+
+<Layout>
+  <main class="p-8">
+    <h1 class="text-3xl font-bold mb-8">Tous les pingouins</h1>
+
+    {
+      species.map((specie) => {
+        // Garde seulement les pingouins de cette espèce
+        const filteredPenguins = penguins.filter(
+          (penguin) => penguin.species === specie,
+        );
+
+        return (
+          <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-4">{specie}</h2>
+
+            <PlotFigure
+              options={{
+                marks: [
+                  Plot.dot(filteredPenguins, {
+                    x: "culmen_length_mm",
+                    y: "culmen_depth_mm",
+                    stroke: "species",
+                  }),
+                ],
+              }}
+            />
+          </section>
+        );
+      })
+    }
+  </main>
+</Layout>
